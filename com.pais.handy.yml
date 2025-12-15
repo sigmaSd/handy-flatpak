@@ -44,7 +44,7 @@ modules:
       # Install dependencies using bun
       - bun install
       # Build the application (no bundle to just get the binary)
-      - bun run tauri build -- --no-bundle
+      - bun run tauri build --no-bundle
       # Install the binary
       - install -D -m 755 src-tauri/target/release/handy /app/bin/handy
       # Install the icon
