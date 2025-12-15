@@ -26,11 +26,11 @@ jobs:
     - name: Build Flatpak
       run: |
         # We use --share=network to allow npm/cargo to download dependencies
-        flatpak-builder --user --disable-rofiles-fuse --force-clean build-dir com.pais.handy.yml
+        flatpak-builder --user --disable-rofiles-fuse --force-clean --repo=repo build-dir com.pais.handy.yml
 
     - name: Create Bundle
       run: |
-        flatpak build-bundle --runtime-repo=https://flathub.org/repo/flathub.flatpakrepo build-dir handy.flatpak com.pais.handy
+        flatpak build-bundle --runtime-repo=https://flathub.org/repo/flathub.flatpakrepo repo handy.flatpak com.pais.handy
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
