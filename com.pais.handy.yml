@@ -37,6 +37,9 @@ modules:
 
   - name: handy
     buildsystem: simple
+    build-options:
+      build-args:
+        - --share=network
     build-commands:
       # Install dependencies using bun
       - bun install
