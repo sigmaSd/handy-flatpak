@@ -51,6 +51,7 @@ modules:
       - install -D -m 644 src-tauri/icons/128x128.png /app/share/icons/hicolor/128x128/apps/com.pais.handy.png
       # Install the desktop file (Create one manually as we are not bundling)
       - |
+        mkdir -p /app/share/applications
         cat <<EOF > /app/share/applications/com.pais.handy.desktop
         [Desktop Entry]
         Name=Handy
