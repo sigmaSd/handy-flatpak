@@ -28,7 +28,7 @@ modules:
   - name: bun
     buildsystem: simple
     build-commands:
-      - install -D -m 755 bun-linux-x64/bun /app/bin/bun
+      - install -D -m 755 bun /app/bin/bun
       - ln -sf /app/bin/bun /app/bin/bunx
     sources:
       - type: archive
