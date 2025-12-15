@@ -1,0 +1,44 @@
+name: Flatpak Build
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  flatpak:
+    runs-on: ubuntu-latest
+    container:
+      image: bilelmoussaoui/flatpak-github-actions:gnome-47
+      options: --privileged
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        apt-get update && apt-get install -y git flatpak-builder
+        # The container usually has basic tools, but we double check.
+
+    - name: Install SDK extensions
+      run: |
+        flatpak install -y --noninteractive flathub org.freedesktop.Sdk.Extension.rust-stable//24.08
+        flatpak install -y --noninteractive flathub org.freedesktop.Sdk.Extension.node20//24.08
+        flatpak install -y --noninteractive flathub org.freedesktop.Sdk.Extension.llvm18//24.08
+
+    - name: Build Flatpak
+      run: |
+        # We use --share=network to allow npm/cargo to download dependencies
+        flatpak-builder --user --disable-rofiles-fuse --force-clean --share=network build-dir com.pais.handy.yml
+
+    - name: Create Bundle
+      run: |
+        flatpak build-bundle --runtime-repo=https://flathub.org/repo/flathub.flatpakrepo build-dir handy.flatpak com.pais.handy
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: handy-flatpak
+        path: handy.flatpak

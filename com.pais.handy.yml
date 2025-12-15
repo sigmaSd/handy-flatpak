@@ -1,0 +1,62 @@
+app-id: com.pais.handy
+runtime: org.gnome.Platform
+runtime-version: '47'
+sdk: org.gnome.Sdk
+command: handy
+finish-args:
+  - --share=ipc
+  - --socket=fallback-x11
+  - --socket=wayland
+  - --device=dri
+  - --share=network
+  - --socket=pulseaudio
+  - --filesystem=host
+  - --device=all
+
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.rust-stable
+  - org.freedesktop.Sdk.Extension.node20
+  - org.freedesktop.Sdk.Extension.llvm18
+
+build-options:
+  append-path: /usr/lib/sdk/rust-stable/bin:/usr/lib/sdk/node20/bin:/usr/lib/sdk/llvm18/bin
+  env:
+    CARGO_HOME: /run/build/handy/cargo
+    RUST_BACKTRACE: '1'
+
+modules:
+  - name: bun
+    buildsystem: simple
+    build-commands:
+      - install -D -m 755 bun-linux-x64/bun /app/bin/bun
+      - ln -sf /app/bin/bun /app/bin/bunx
+    sources:
+      - type: archive
+        url: https://github.com/oven-sh/bun/releases/download/bun-v1.1.27/bun-linux-x64.zip
+        sha256: 22bd04407f9b9c73f03936a4acefd943aa7278e5af86ee5b2b98fe60b37c3327
+
+  - name: handy
+    buildsystem: simple
+    build-commands:
+      # Install dependencies using bun
+      - bun install
+      # Build the application (no bundle to just get the binary)
+      - bun run tauri build -- --no-bundle
+      # Install the binary
+      - install -D -m 755 src-tauri/target/release/handy /app/bin/handy
+      # Install the icon
+      - install -D -m 644 src-tauri/icons/128x128.png /app/share/icons/hicolor/128x128/apps/com.pais.handy.png
+      # Install the desktop file (Create one manually as we are not bundling)
+      - |
+        cat <<EOF > /app/share/applications/com.pais.handy.desktop
+        [Desktop Entry]
+        Name=Handy
+        Exec=handy
+        Icon=com.pais.handy
+        Type=Application
+        Categories=Utility;
+        EOF
+    sources:
+      - type: git
+        url: https://github.com/cjpais/Handy
+        commit: fdea7e13b26e4e59f4e8bfc401e945413a167a72
